@@ -25,10 +25,11 @@ impl MatrixMultiplier {
             .unwrap();
         let (device, queue) = adapter.request_device(&Default::default()).await.unwrap();
     
-        let shader = device.create_shader_module(wgpu::include_wgsl!("shaders/blit.wgsl"));
-    
+        let shader = device.create_shader_module(wgpu::include_wgsl!("shaders/matrix_multiply.wgsl"));
+        // wgpu::ShaderModuleDescriptor::
+        
         let pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
-            label: Some("Introduction Compute Pipeline"),
+            label: Some("Matrix Multiply Compute Pipeline"),
             layout: None,
             module: &shader,
             entry_point: None,
@@ -45,22 +46,28 @@ impl MatrixMultiplier {
     }
 
     pub async fn run_once(&self, input_data: Vec<f32>, weights: Matrix) -> anyhow::Result<Vec<f32>> {
-        let input_buffer: wgpu::Buffer = self.device.create_buffer_init(&BufferInitDescriptor {
-            label: Some("input"),
+        let input_neuron_buffer: wgpu::Buffer = self.device.create_buffer_init(&BufferInitDescriptor {
+            label: Some("input_neurons"),
             contents: bytemuck::cast_slice(&input_data),
             usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::STORAGE,
         });
 
-        let output_buffer = self.device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("output"),
-            size: input_buffer.size(),
+        let weight_buffer: wgpu::Buffer = self.device.create_buffer_init(&BufferInitDescriptor {
+            label: Some("weights"),
+            contents: bytemuck::cast_slice(&weights),
+            usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::STORAGE,
+        });
+
+        let output_neuron_buffer = self.device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("output_neurons"),
+            size: input_neuron_buffer.size(),
             usage: wgpu::BufferUsages::COPY_SRC | wgpu::BufferUsages::STORAGE,
             mapped_at_creation: false,
         });
     
         let temp_buffer = self.device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("temp"),
-            size: input_buffer.size(),
+            size: input_neuron_buffer.size(),
             usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
             mapped_at_creation: false,
         });
