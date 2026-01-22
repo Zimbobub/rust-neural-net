@@ -9,6 +9,7 @@ use crate::matrix::Matrix;
 pub struct NeuralNetwork {
     layers: Vec<Vec<f32>>,
     weights: Vec<Matrix>,
+    biases: Vec<Vec<f32>>
 }
 
 impl NeuralNetwork {
@@ -26,8 +27,9 @@ impl NeuralNetwork {
         
         let layers = structure.iter().map(|size| vec![0.0; *size]).collect();
         let weights = weight_matrix_sizes.iter().map(|(width, height)| Matrix::new(*width, *height)).collect();
+        let mut biases = Vec::new();
 
-        return Some(Self { layers, weights });
+        return Some(Self { layers, weights, biases });
     }
 
     pub fn num_layers(&self) -> usize {

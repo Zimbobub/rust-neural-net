@@ -47,6 +47,8 @@ impl MatrixMultiplier {
 
 
     pub async fn run_once(&self, input_data: &Vec<f32>, weights: &Matrix, output_layer_size: usize) -> anyhow::Result<Vec<f32>> {
+        let start = std::time::Instant::now();
+
         let input_neuron_buffer: wgpu::Buffer = self.device.create_buffer_init(&BufferInitDescriptor {
             label: Some("input_neurons"),
             contents: bytemuck::cast_slice(&input_data),
@@ -140,6 +142,10 @@ impl MatrixMultiplier {
 
         // We need to unmap the buffer to be able to use it again
         temp_buffer.unmap();
+
+
+        println!("time {}us", start.elapsed().as_micros());
+
 
         Ok(output)
 
