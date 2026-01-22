@@ -3,9 +3,9 @@
 
 
 pub struct Matrix {
-    inner: Vec<Vec<f32>>,
-    width: usize,
-    height: usize
+    pub inner: Vec<Vec<f32>>,
+    pub width: usize,
+    pub height: usize
 }
 
 
@@ -43,3 +43,6 @@ impl Matrix {
         return self.inner.iter().flatten().map(|f| *f).collect();
     }
 }
+
+
+

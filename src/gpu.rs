@@ -47,7 +47,7 @@ impl MatrixMultiplier {
 
 
 
-    pub async fn run_once(&self, input_data: Vec<f32>, weights: Matrix) -> anyhow::Result<Vec<f32>> {
+    pub async fn run_once(&self, input_data: &Vec<f32>, weights: &Matrix, output_layer_size: usize) -> anyhow::Result<Vec<f32>> {
         let input_neuron_buffer: wgpu::Buffer = self.device.create_buffer_init(&BufferInitDescriptor {
             label: Some("input_neurons"),
             contents: bytemuck::cast_slice(&input_data),
@@ -62,7 +62,7 @@ impl MatrixMultiplier {
 
         let output_neuron_buffer = self.device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("output_neurons"),
-            size: input_neuron_buffer.size(),
+            size: (output_layer_size * size_of::<f32>()) as u64,
             usage: wgpu::BufferUsages::COPY_SRC | wgpu::BufferUsages::STORAGE,
             mapped_at_creation: false,
         });
@@ -101,7 +101,7 @@ impl MatrixMultiplier {
         {
             // We specified 64 threads per workgroup in the shader, so we need to compute how many
             // workgroups we need to dispatch.
-            let num_dispatches = input_data.len().div_ceil(64) as u32;
+            let num_dispatches = output_layer_size.div_ceil(64) as u32;
 
             let mut pass = encoder.begin_compute_pass(&Default::default());
             pass.set_pipeline(&self.pipeline);

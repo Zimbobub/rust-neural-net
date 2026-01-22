@@ -45,5 +45,9 @@ impl NeuralNetwork {
     pub fn weights(&self, output_layer_index: usize) -> Option<&Matrix> {
         self.weights.get(output_layer_index - 1)
     }
+
+    pub fn weights_mut(&mut self, output_layer_index: usize) -> Option<&mut Matrix> {
+        self.weights.get_mut(output_layer_index - 1)
+    }
 }
 
