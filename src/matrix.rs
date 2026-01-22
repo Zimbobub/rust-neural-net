@@ -29,4 +29,8 @@ impl Matrix {
 
         return Some(Self { inner: data, width: width?, height })
     }
+
+    pub fn flatten(&self) -> Vec<f32> {
+        return self.inner.iter().flatten().map(|f| *f).collect();
+    }
 }

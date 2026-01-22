@@ -45,6 +45,8 @@ impl MatrixMultiplier {
         };
     }
 
+
+
     pub async fn run_once(&self, input_data: Vec<f32>, weights: Matrix) -> anyhow::Result<Vec<f32>> {
         let input_neuron_buffer: wgpu::Buffer = self.device.create_buffer_init(&BufferInitDescriptor {
             label: Some("input_neurons"),
@@ -54,7 +56,7 @@ impl MatrixMultiplier {
 
         let weight_buffer: wgpu::Buffer = self.device.create_buffer_init(&BufferInitDescriptor {
             label: Some("weights"),
-            contents: bytemuck::cast_slice(&weights),
+            contents: bytemuck::cast_slice(&weights.flatten()),
             usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::STORAGE,
         });
 
@@ -81,11 +83,15 @@ impl MatrixMultiplier {
             entries: &[
                 wgpu::BindGroupEntry {
                     binding: 0,
-                    resource: input_buffer.as_entire_binding(),
+                    resource: input_neuron_buffer.as_entire_binding(),
                 },
                 wgpu::BindGroupEntry {
                     binding: 1,
-                    resource: output_buffer.as_entire_binding(),
+                    resource: weight_buffer.as_entire_binding(),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 2,
+                    resource: output_neuron_buffer.as_entire_binding(),
                 },
             ],
         });
@@ -103,7 +109,7 @@ impl MatrixMultiplier {
             pass.dispatch_workgroups(num_dispatches, 1, 1);
         }
 
-        encoder.copy_buffer_to_buffer(&output_buffer, 0, &temp_buffer, 0, output_buffer.size());
+        encoder.copy_buffer_to_buffer(&output_neuron_buffer, 0, &temp_buffer, 0, output_neuron_buffer.size());
 
         self.queue.submit([encoder.finish()]);
 
@@ -128,7 +134,7 @@ impl MatrixMultiplier {
             let output_data = temp_buffer.get_mapped_range(..);
             
             // Now we have the data on the CPU we can do what ever we want to with it
-            assert_eq!(&input_data, bytemuck::cast_slice(&output_data));
+            // assert_eq!(&input_data, bytemuck::cast_slice(&output_data));
 
             bytemuck::cast_slice(&output_data).to_vec()
         };

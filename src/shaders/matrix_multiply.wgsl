@@ -3,7 +3,7 @@
 // Weights f32 read only matrix, cols = #inputs, rows = #outputs
 @group(0) @binding(1) var<storage, read> weights: array<f32>;
 // Output data f32 writeable array
-@group(0) @binding(2) var<storage, read_write> output_neurons: array<u32>;
+@group(0) @binding(2) var<storage, read_write> output_neurons: array<f32>;
 
 
 @compute
@@ -22,13 +22,12 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
         return;
     }
 
-    let start_index = n_inputs * output_index;
-    let end_index = n_inputs * (output_index + 1);
+    let row_index = n_inputs * output_index;
     var weighted_sum: f32 = 0.0;
 
-    for (var i = start_index; i < end_index; i++) {
-        weighted_sum += weights[start_index + i] * input_neurons[i]
+    for (var i: u32 = 0; i < n_inputs; i++) {
+        weighted_sum += weights[row_index + i] * input_neurons[i];
     }
 
-    output[global_invocation_id.x] = weighted_sum;
+    output_neurons[global_invocation_id.x] = weighted_sum;
 }
