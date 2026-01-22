@@ -35,11 +35,13 @@ pub async fn run() -> anyhow::Result<()> {
 
     // run network
     for i in 1..neural_network.num_layers() {
-        let result = matrix_multiplier.run_once(
-            neural_network.layer(i-1).unwrap(),
-            neural_network.weights(i).unwrap(),
-            neural_network.layer(i).unwrap().len()
-        ).await?;
+        let input_layer = neural_network.layer(i-1).unwrap();
+        let weights = neural_network.weights(i).unwrap();
+        let output_layer_size = neural_network.layer(i).unwrap().len();
+
+        println!("{:?} {:#?} {}", input_layer, weights, output_layer_size);
+
+        let result = matrix_multiplier.run_once(input_layer, weights, output_layer_size).await?;
 
         println!("{:?}", result);
 

@@ -69,7 +69,7 @@ impl MatrixMultiplier {
     
         let temp_buffer = self.device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("temp"),
-            size: input_neuron_buffer.size(),
+            size: (output_layer_size * size_of::<f32>()) as u64,
             usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
             mapped_at_creation: false,
         });

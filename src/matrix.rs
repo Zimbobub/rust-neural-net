@@ -1,7 +1,7 @@
 
 
 
-
+#[derive(Debug)]
 pub struct Matrix {
     pub inner: Vec<Vec<f32>>,
     pub width: usize,
