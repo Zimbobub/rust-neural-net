@@ -5,7 +5,7 @@ pub mod network;
 
 use pollster::FutureExt;
 
-use crate::{matrix::Matrix, network::NeuralNetwork};
+use crate::network::NeuralNetwork;
 
 
 
@@ -50,15 +50,10 @@ pub async fn run() -> anyhow::Result<()> {
         *neural_network.layer_mut(i).unwrap() = result;
     }
 
-    
-
-
     Ok(())
 }
 
 fn main() {
     env_logger::init();
-
-
     run().block_on().unwrap();
 }

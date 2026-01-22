@@ -1,6 +1,5 @@
 use flume::bounded;
 use wgpu::util::{BufferInitDescriptor, DeviceExt};
-use pollster::FutureExt;
 
 use crate::matrix::Matrix;
 
@@ -141,8 +140,6 @@ impl MatrixMultiplier {
 
         // We need to unmap the buffer to be able to use it again
         temp_buffer.unmap();
-
-        println!("Success!");
 
         Ok(output)
 

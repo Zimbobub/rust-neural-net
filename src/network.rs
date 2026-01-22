@@ -42,6 +42,13 @@ impl NeuralNetwork {
         self.layers.get_mut(index)
     }
 
+    pub fn set_layer(&mut self, index: usize, data: Vec<f32>) -> Option<()> {
+        if self.layers.get_mut(index)?.len() != data.len() { return None }
+
+        *self.layers.get_mut(index)? = data;
+        return Some(());
+    }
+
     pub fn weights(&self, output_layer_index: usize) -> Option<&Matrix> {
         self.weights.get(output_layer_index - 1)
     }
