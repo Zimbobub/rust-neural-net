@@ -1,4 +1,4 @@
-use crate::matrix::Matrix;
+use crate::{layer::Layer, matrix::Matrix};
 
 
 
@@ -7,7 +7,7 @@ use crate::matrix::Matrix;
 
 
 pub struct NeuralNetwork {
-    layers: Vec<Vec<f32>>,
+    layers: Vec<Layer>,
     weights: Vec<Matrix>,
 }
 
@@ -24,17 +24,17 @@ impl NeuralNetwork {
         }
     
         
-        let layers = structure.iter().map(|size| vec![0.0; *size]).collect();
+        let layers = structure.iter().map(|size| Layer::new(*size)).collect();
         let weights = weight_matrix_sizes.iter().map(|(width, height)| Matrix::new(*width, *height)).collect();
 
         return Some(Self { layers, weights });
     }
 
-    pub fn layer(&self, index: usize) -> Option<&Vec<f32>> {
+    pub fn layer(&self, index: usize) -> Option<&Layer> {
         self.layers.get(index)
     }
 
-    pub fn layer_mut(&mut self, index: usize) -> Option<&mut Vec<f32>> {
+    pub fn layer_mut(&mut self, index: usize) -> Option<&mut Layer> {
         self.layers.get_mut(index)
     }
 
