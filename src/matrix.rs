@@ -10,7 +10,16 @@ pub struct Matrix {
 
 
 impl Matrix {
-    pub fn new(data: Vec<Vec<f32>>) -> Option<Self> {
+    pub fn new(width: usize, height: usize) -> Self {
+        return Self {
+            inner: vec![vec![0.0; width]; height],
+            width,
+            height
+        }
+    }
+
+
+    pub fn from_nested_vec(data: Vec<Vec<f32>>) -> Option<Self> {
         let height = data.len();
         let mut width: Option<usize> = None;
 
