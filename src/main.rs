@@ -7,7 +7,7 @@ use std::io::Write;
 
 use pollster::FutureExt;
 
-use crate::network::NeuralNetwork;
+use crate::{matrix::Matrix, network::NeuralNetwork};
 
 
 
@@ -23,13 +23,15 @@ pub async fn run() -> anyhow::Result<()> {
 
     // set random weights
     for i in 1..neural_network.num_layers() {
-        let weights = neural_network.weights_mut(i).unwrap();
+        let mut weights = Matrix::new(neural_network.weights(i).unwrap().width, neural_network.weights(i).unwrap().height);
         
         for y in 0..weights.height {
             for x in 0..weights.width {
                 weights.inner[y][x] = rand::random()
             }
         }
+
+        neural_network.set_weights(i, weights);
     }
 
     // set first layer
@@ -37,13 +39,12 @@ pub async fn run() -> anyhow::Result<()> {
 
     // run network
     for i in 1..neural_network.num_layers() {
-        let input_layer = neural_network.layer(i-1).unwrap();
-        let weights = neural_network.weights(i).unwrap();
-        let output_layer_size = neural_network.layer(i).unwrap().len();
-
-        // println!("{:?} {:#?} {}", input_layer, weights, output_layer_size);
-
-        let result = matrix_multiplier.run_once(input_layer, weights, output_layer_size).await?;
+        let result = matrix_multiplier.run_once(
+            neural_network.layer(i-1).unwrap(),
+            neural_network.weights(i).unwrap(),
+            neural_network.biases(i).unwrap(),
+            neural_network.layer(i).unwrap().len()
+        ).await?;
 
         // println!("{:?}", result);
 

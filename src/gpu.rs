@@ -46,7 +46,7 @@ impl MatrixMultiplier {
 
 
 
-    pub async fn run_once(&self, input_data: &Vec<f32>, weights: &Matrix, output_layer_size: usize) -> anyhow::Result<Vec<f32>> {
+    pub async fn run_once(&self, input_data: &Vec<f32>, weights: &Matrix, biases: &Vec<f32>, output_layer_size: usize) -> anyhow::Result<Vec<f32>> {
         let start = std::time::Instant::now();
 
         let input_neuron_buffer: wgpu::Buffer = self.device.create_buffer_init(&BufferInitDescriptor {
@@ -58,6 +58,12 @@ impl MatrixMultiplier {
         let weight_buffer: wgpu::Buffer = self.device.create_buffer_init(&BufferInitDescriptor {
             label: Some("weights"),
             contents: bytemuck::cast_slice(&weights.flatten()),
+            usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::STORAGE,
+        });
+
+        let bias_buffer: wgpu::Buffer = self.device.create_buffer_init(&BufferInitDescriptor {
+            label: Some("biases"),
+            contents: bytemuck::cast_slice(&biases),
             usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::STORAGE,
         });
 
@@ -92,6 +98,10 @@ impl MatrixMultiplier {
                 },
                 wgpu::BindGroupEntry {
                     binding: 2,
+                    resource: bias_buffer.as_entire_binding(),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 3,
                     resource: output_neuron_buffer.as_entire_binding(),
                 },
             ],

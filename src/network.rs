@@ -25,9 +25,12 @@ impl NeuralNetwork {
         }
     
         
-        let layers = structure.iter().map(|size| vec![0.0; *size]).collect();
-        let weights = weight_matrix_sizes.iter().map(|(width, height)| Matrix::new(*width, *height)).collect();
-        let mut biases = Vec::new();
+        let layers: Vec<Vec<f32>> = structure.iter().map(|size| vec![0.0; *size]).collect();
+        let weights: Vec<Matrix> = weight_matrix_sizes.iter().map(|(width, height)| Matrix::new(*width, *height)).collect();
+        let mut biases: Vec<Vec<f32>> = Vec::new();
+        for i in 1..layers.len() {
+            biases.push(vec![0.0; layers[i].len()]);
+        }
 
         return Some(Self { layers, weights, biases });
     }
@@ -55,8 +58,23 @@ impl NeuralNetwork {
         self.weights.get(output_layer_index - 1)
     }
 
-    pub fn weights_mut(&mut self, output_layer_index: usize) -> Option<&mut Matrix> {
-        self.weights.get_mut(output_layer_index - 1)
+    pub fn set_weights(&mut self, output_layer_index: usize, data: Matrix) -> Option<()> {
+        let weights = self.weights.get_mut(output_layer_index - 1)?;
+        if weights.height != data.height || weights.width != data.width { return None }
+
+        *weights = data;
+        return Some(());
+    }
+
+    pub fn biases(&self, output_layer_index: usize) -> Option<&Vec<f32>> {
+        self.biases.get(output_layer_index - 1)
+    }
+
+    pub fn set_biases(&mut self, output_layer_index: usize, data: Vec<f32>) -> Option<()> {
+        if self.biases.get_mut(output_layer_index - 1)?.len() != data.len() { return None }
+
+        *self.biases.get_mut(output_layer_index - 1)? = data;
+        return Some(());
     }
 }
 
