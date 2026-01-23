@@ -1,13 +1,15 @@
 pub mod gpu;
 pub mod matrix;
+pub mod weight_bias_matrix;
 pub mod network;
 pub mod forward_propagation;
 
 use std::io::Write;
 
 use pollster::FutureExt;
+use rand::{Fill, rng};
 
-use crate::{forward_propagation::ForwardPropagation, matrix::Matrix, network::NeuralNetworkDescriptor};
+use crate::{forward_propagation::ForwardPropagation, weight_bias_matrix::WeightAndBiasMatrix, network::NeuralNetworkDescriptor};
 
 
 
@@ -21,24 +23,9 @@ pub async fn run() -> anyhow::Result<()> {
     
     let mut neural_network = NeuralNetworkDescriptor::new(&[784, 256, 128, 10]).unwrap();
 
-    // set random weights
+    // set random weights and biases
     for i in 1..neural_network.num_layers() {
-        let mut weights = Matrix::new(neural_network.weights(i).unwrap().width, neural_network.weights(i).unwrap().height);
-        
-        for y in 0..weights.height {
-            for x in 0..weights.width {
-                weights.inner[y][x] = rand::random()
-            }
-        }
-
-        neural_network.set_weights(i, weights);
-    }
-
-    // set random biases
-    for i in 1..neural_network.num_layers() {
-        let mut biases = vec![0.0f32; neural_network.biases(i).unwrap().len()];
-        rand::fill(biases.as_mut_slice());
-        neural_network.set_biases(i, biases);
+        neural_network.weights_and_biases_mut(i).unwrap().fill(&mut rng());
     }
 
     // instance network
@@ -49,7 +36,7 @@ pub async fn run() -> anyhow::Result<()> {
     rand::fill(rand_data.as_mut_slice());
     instance.set_layer(0, rand_data).unwrap();
 
-    instance.run(&matrix_multiplier);
+    let result = instance.run(&matrix_multiplier).await;
 
     // run network
     // for i in 1..neural_network.num_layers() {

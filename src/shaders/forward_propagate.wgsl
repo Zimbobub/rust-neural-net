@@ -2,7 +2,8 @@
 struct Globals {
     b_is_input_layer: u32,
     weight_matrix_index: u32,
-    weight_matrix_size: vec2<u32>
+    weight_matrix_width: u32,
+    weight_matrix_height: u32
 }
 
 
@@ -25,8 +26,8 @@ struct Globals {
 fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
     let output_index = global_invocation_id.x;
 
-    let n_inputs: u32 = globals.weight_matrix_size.x;
-    let n_outputs: u32 = globals.weight_matrix_size.y;
+    let n_inputs: u32 = globals.weight_matrix_width;
+    let n_outputs: u32 = globals.weight_matrix_height;
 
 
     // workgroup_size may not be a multiple of the array size so
